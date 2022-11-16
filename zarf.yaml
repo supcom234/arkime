@@ -1,7 +1,7 @@
 kind: ZarfPackageConfig
 metadata:
-  name: dco-foundation
-  description: "Defensive Cyber Ops (DCO) Suite Foundation"
+  name: arkime
+  description: "Arkime Traffic Monitoring / Analysis"
   # Big Bang / Iron Bank are only amd64
   architecture: amd64
 
@@ -26,4 +26,4 @@ components:
           - manifests/helmrelease.yaml
           - manifests/virtualservice.yaml
     images:
-      - harbor.valkyrie.lan/voltron/arkime3:latest
+      - harbor.cnaps.io/voltron/arkime3:latest
