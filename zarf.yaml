@@ -1,0 +1,28 @@
+kind: ZarfPackageConfig
+metadata:
+  name: dco-foundation
+  description: "Defensive Cyber Ops (DCO) Suite Foundation"
+  # Big Bang / Iron Bank are only amd64
+  architecture: amd64
+
+variables:
+  # Prompt user for the domain override
+  - name: DOMAIN
+    default: "vp.bigbang.dev"
+    prompt: false
+
+  - name: BRANCH
+    default: "main"
+    prompt: true
+
+components:
+  - name: arkime
+    required: true
+    manifests:
+      - name: arkime-helm
+        files:
+          - manifests/gitrepository.yaml
+          - manifests/helmrelease.yaml
+          - manifests/virtualservice.yaml
+    images:
+      - harbor.valkyrie.lan/voltron/arkime3:latest
