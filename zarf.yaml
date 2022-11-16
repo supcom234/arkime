@@ -21,6 +21,7 @@ components:
     manifests:
       - name: arkime-helm
         files:
+          - manifests/namespace.yaml
           - manifests/gitrepository.yaml
           - manifests/helmrelease.yaml
           - manifests/virtualservice.yaml
