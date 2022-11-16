@@ -1,0 +1,61 @@
+{{- $elastic_secret := (lookup "v1" "Secret" "logging" .Values.elastic_pass).data }}
+{{- $elastic_password := get $elastic_secret .Values.elastic_user | b64dec }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  namespace: arkime
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+data:
+  config.ini: |
+    [default]
+    elasticsearch={{ .Values.elastic_protocol }}://{{ .Values.elastic_user }}:{{ $elastic_password }}@{{ .Values.elastic_host }}:{{ .Values.elastic_port }}
+    caTrustFile=/usr/local/share/ca-certificates/elastic_ca.crt
+    rotateIndex=hourly6
+    passwordSecret=default-password
+    httpRealm=Arkime
+    pcapDir=/opt/arkime/raw
+    tcpTimeout=10
+    tcpSaveTimeout=10
+    udpTimeout=30
+    icmpTimeout=10
+    maxStreams=14000000
+    maxPackets=10000
+    viewPort={{ .Values.listen_port }}
+    geoLite2Country=/opt/arkime/etc/GeoLite2-Country.mmdb
+    geoLite2ASN=/opt/arkime/etc/GeoLite2-ASN.mmdb
+    rirFile=/opt/arkime/etc/ipv4-address-space.csv
+    ouiFile=/opt/arkime/etc/oui.txt
+    parseSMTP=true
+    parseSMB=true
+    parseQSValue=true
+    supportSha256=false
+    maxReqBody=64
+    config.reqBodyOnlyUtf8=true
+    smtpIpHeaders=X-Originating-IP:;X-Barracuda-Apparent-Source-IP:
+    parsersDir=/opt/arkime/parsers
+    pluginsDir=/opt/arkime/plugins
+    compressES=false
+    maxESConns={{ .Values.maxESConns }}
+    maxESRequests={{ .Values.maxESRequests }}
+    packetsPerPoll={{ .Values.packetsPerPoll }}
+    antiSynDrop=false
+    logEveryXPackets=100000
+    logUnknownProtocols=false
+    logESRequests=true
+    logFileCreation=true
+    pcapReadMethod=tpacketv3
+    tpacketv3NumThreads=2
+    maxPacketsInQueue={{ .Values.maxPacketsInQueue }}
+    # Cert file to use, comment out to use http instead
+    # certFile=/etc/ssl/certs/moloch.crt
+    # Private key file to use, comment out to use http instead
+    # keyFile=/etc/ssl/certs/moloch.key
+    userNameHeader=uid
+    viewHost=localhost
+    requiredAuthHeader=roles
+    requiredAuthHeaderVal=arkime-user
+    userAutoCreateTmpl={"userId": "${this.uid}", "userName": "${this.uid}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": true, "removeEnabled": true, "packetSearch": true }

@@ -1,0 +1,62 @@
+{{- if .Values.performElasticInit -}}
+
+{{- $elastic_secret := (lookup "v1" "Secret" "logging" .Values.elastic_pass).data }}
+{{- $elastic_password := get $elastic_secret .Values.elastic_user | b64dec }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-bootstrap"
+  namespace: arkime
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    # This Job will do Arkime configuration as a hook
+    # before arkime-viewer is run. The configmap should be
+    # in place and mounted before this job.
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+
+      # Without this annotation, istio-proxy will never exit, and job won't finish.
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: arkime
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        command: ["/bin/bash"]
+        args: ["-c", "update-ca-certificates && /opt/arkime/bin/setup.sh"]
+        env:
+        - name: elastic_url
+          value: "{{ .Values.elastic_protocol }}://{{ .Values.elastic_user }}:{{ $elastic_password }}@{{ .Values.elastic_host }}:{{ .Values.elastic_port }}"
+        - name: username
+          value: {{ .Values.username }}
+        - name: password
+          value: {{ .Values.password }}
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: /opt/arkime/etc/config.ini
+        - name: elastic-cert
+          mountPath: /usr/local/share/ca-certificates
+      volumes:
+      - name: configini
+        configMap:
+          name: {{ .Release.Name }}
+
+      - name: elastic-cert
+        secret:
+          secretName: {{ .Values.elastic_cert_arkime }}
+{{- end -}}

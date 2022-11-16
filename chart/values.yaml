@@ -1,0 +1,52 @@
+#### Arkime configuration variables ####
+
+# Container image
+image: harbor.valkyrie.lan/voltron/arkime3
+version: latest
+
+# URL
+viewer_url: arkime.kit1.voltron.lan
+listen_port: 8005
+
+# Username and password for Web login
+username: 'localadmin'
+password: 'password'
+
+# Kubernetes and docker info
+cpu_request: 1000
+
+# ElasticSearch Configuration
+
+# Run the Arkime db.pl script to do ElasticSearch initialization. This should
+# be set to "true" the first time you do a helm install of this chart. If for
+# whatever reason you delete this chart but leave ElasticSearch unchanged, this
+# should be set to "false" if you re-install Arkime with this chart.
+performElasticInit: true
+
+# URL that Arkime will use to communicate with the ElasticSearch REST endpoint
+# This is probably going to be the ElasticSearch API k8s service.
+elastic_namespace: logging
+
+# We expect Secret "logging-ek-es-http-certs-public" with key "ca.crt"
+elastic_cert: logging-ek-es-http-certs-public
+
+# We expect a Secret "logging-ek-es-elastic-user" with key "elastic"
+elastic_pass: logging-ek-es-elastic-user
+elastic_user: elastic
+
+# Will be concatenated w/ username and password to form the full URL
+elastic_protocol: https
+elastic_host: logging-ek-es-http.logging.svc
+elastic_port: 9200
+
+# Name of the secret containing the Certificate Authority certificate used to
+# sign the ElasticSearch cert in use.
+elastic_cert: logging-ek-es-http-certs-public
+
+# Copy of the ElasticSearch CA cert in the Arkime namespace for our use.
+elastic_cert_arkime: arkime-ek-es-http-certs-public
+
+maxESConns: "30"
+maxESRequests: "500"
+packetsPerPoll: "500000"
+maxPacketsInQueue: "400000"

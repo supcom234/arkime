@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arkime-viewer
+  namespace: arkime
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    component: arkime
+    app.kubernetes.io/name: arkime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arkime-viewer
+  template:
+    metadata:
+      labels:
+        component: arkime
+        app: arkime-viewer
+    spec:
+      # initContainers:
+      # # Mount the elastic CA cert and run update-ca-certificates. 
+      # - name: arkime
+      #   image: "{{ .Values.image }}:{{ .Values.version }}"
+      #   imagePullPolicy: IfNotPresent
+      #   volumeMounts:
+      #   - name: pod_certs
+      #     mountPath: "/etc/ssl/pod_certs"
+
+      #   - name: elastic_cert
+      #     mountPath: "/usr/local/share/ca-certificates"
+      #     readOnly: true
+          
+      #   command: ["/bin/sh"]
+      #   args: ["-c", "update-ca-certificates && cp /etc/ssl/certs/* /etc/ssl/pod_certs/*"]
+
+      containers:
+      - name: arkime
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        # imagePullPolicy: Never
+        resources:
+          requests:
+            cpu: {{ .Values.cpu_request }}m
+        command: ["/bin/sh"]
+#        args: ["-c", "/opt/arkime/bin/node /opt/arkime/viewer/viewer.js -c /opt/arkime/etc/config.ini >> /opt/arkime/logs/viewer.log 2>&1" ]
+        args: ["-c", "update-ca-certificates && /opt/arkime/bin/node /opt/arkime/viewer/viewer.js -c /opt/arkime/etc/config.ini" ]
+        env:
+        - name: ARKIME_USER
+          value: "{{ .Values.username }}"
+        - name: ARKIME_PASSWORD
+          value: "{{ .Values.password }}"
+        ports:
+        - name: webgui
+          containerPort: {{ .Values.listen_port }}
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: /opt/arkime/etc/config.ini
+        - name: elastic-cert
+          mountPath: /usr/local/share/ca-certificates
+
+      restartPolicy: Always
+      # nodeSelector:
+      #   packet-capture: true
+      volumes:
+      - name: configini
+        configMap:
+          name: {{ .Release.Name }}
+
+      - name: elastic-cert
+        secret:
+          secretName: {{ .Values.elastic_cert_arkime }}
+
+      imagePullSecrets:
+      - name: regcred

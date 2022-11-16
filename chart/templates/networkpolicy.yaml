@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-arkime
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+  annotations:
+    # This must be done before the firstrun.yaml Job runs
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+  namespace: logging
+spec:
+  podSelector:
+    matchLabels:
+      common.k8s.elastic.co/type: elasticsearch
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 9200
+      from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: arkime
+  policyTypes:
+    - Ingress
