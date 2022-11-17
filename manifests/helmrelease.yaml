@@ -33,3 +33,7 @@ spec:
       namespace: bigbang
     - name: dataplane-ek
       namespace: dataplane-ek
+  values:
+    viewer_url: "arkime-viewer.###ZARF_VAR_DOMAIN###"
+    performElasticInit: "###ZARF_VAR_FIRST_INSTALL###"
+
