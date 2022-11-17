@@ -28,6 +28,7 @@ components:
       - https://github.com/naps-dev/arkime.git
     manifests:
       - name: arkime-helm
+        namespace: arkime
         files:
           - manifests/namespace.yaml
           - manifests/gitrepository.yaml
