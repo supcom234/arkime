@@ -1,11 +1,11 @@
 #### Arkime configuration variables ####
 
 # Container image
-image: harbor.valkyrie.lan/voltron/arkime3
+image: harbor.cnaps.io/voltron/arkime3
 version: latest
 
 # URL
-viewer_url: arkime.kit1.voltron.lan
+viewer_url: arkime-viewer.vp.bigbang.dev
 listen_port: 8005
 
 # Username and password for Web login
