@@ -36,7 +36,7 @@ elastic_user: elastic
 
 # Will be concatenated w/ username and password to form the full URL
 elastic_protocol: https
-elastic_host: dataplane-ek-es-http.dataplane.svc
+elastic_host: dataplane-ek-es-http.dataplane-ek.svc
 elastic_port: 9200
 
 # Name of the secret containing the Certificate Authority certificate used to
