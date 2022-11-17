@@ -35,4 +35,4 @@ components:
           - manifests/helmrelease.yaml
           - manifests/virtualservice.yaml
     images:
-      - harbor.cnaps.io/voltron/arkime3:latest
+      - 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime3:20221117
