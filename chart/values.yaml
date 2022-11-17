@@ -25,23 +25,23 @@ performElasticInit: true
 
 # URL that Arkime will use to communicate with the ElasticSearch REST endpoint
 # This is probably going to be the ElasticSearch API k8s service.
-elastic_namespace: logging
+elastic_namespace: dataplane-ek
 
-# We expect Secret "logging-ek-es-http-certs-public" with key "ca.crt"
-elastic_cert: logging-ek-es-http-certs-public
+# We expect Secret "dataplane-ek-es-http-certs-public" with key "ca.crt"
+elastic_cert: dataplane-ek-es-http-certs-public
 
-# We expect a Secret "logging-ek-es-elastic-user" with key "elastic"
-elastic_pass: logging-ek-es-elastic-user
+# We expect a Secret "dataplane-ek-es-elastic-user" with key "elastic"
+elastic_pass: dataplane-ek-es-elastic-user
 elastic_user: elastic
 
 # Will be concatenated w/ username and password to form the full URL
 elastic_protocol: https
-elastic_host: logging-ek-es-http.logging.svc
+elastic_host: dataplane-ek-es-http.dataplane.svc
 elastic_port: 9200
 
 # Name of the secret containing the Certificate Authority certificate used to
 # sign the ElasticSearch cert in use.
-elastic_cert: logging-ek-es-http-certs-public
+elastic_cert: dataplane-ek-es-http-certs-public
 
 # Copy of the ElasticSearch CA cert in the Arkime namespace for our use.
 elastic_cert_arkime: arkime-ek-es-http-certs-public

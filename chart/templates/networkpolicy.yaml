@@ -11,7 +11,7 @@ metadata:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation
-  namespace: logging
+  namespace: dataplane-ek
 spec:
   podSelector:
     matchLabels:

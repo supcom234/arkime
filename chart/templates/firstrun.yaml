@@ -1,6 +1,6 @@
 {{- if .Values.performElasticInit -}}
 
-{{- $elastic_secret := (lookup "v1" "Secret" "logging" .Values.elastic_pass).data }}
+{{- $elastic_secret := (lookup "v1" "Secret" "dataplane-ek" .Values.elastic_pass).data }}
 {{- $elastic_password := get $elastic_secret .Values.elastic_user | b64dec }}
 apiVersion: batch/v1
 kind: Job

@@ -1,7 +1,7 @@
 kind: ZarfPackageConfig
 metadata:
   name: arkime
-  description: "Arkime Traffic Monitoring / Analysis"
+  description: "Arkime traffic monitoring and analysis tool"
   # Big Bang / Iron Bank are only amd64
   architecture: amd64
 
@@ -17,7 +17,10 @@ variables:
 
 components:
   - name: arkime
+    description: "Arkime traffic monitoring and analysis tool"
     required: true
+    repos:
+      - https://github.com/naps-dev/arkime.git
     manifests:
       - name: arkime-helm
         files:
