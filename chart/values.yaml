@@ -1,8 +1,8 @@
 #### Arkime configuration variables ####
 
 # Container image
-image: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime3
-version: 20221117
+image: "765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime3"
+version: "20221117"
 
 # URL
 viewer_url: arkime.kit1.voltron.lan
