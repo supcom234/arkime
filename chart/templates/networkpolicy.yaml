@@ -23,6 +23,6 @@ spec:
       from:
         - namespaceSelector:
             matchLabels:
-              app.kubernetes.io/name: arkime
+              kubernetes.io/metadata.name: arkime
   policyTypes:
     - Ingress
