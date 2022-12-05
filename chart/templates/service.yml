@@ -4,12 +4,12 @@ kind: Service
 metadata:
   labels:
     component: arkime
-  name: arkime
+  name: arkime-viewer
   namespace: arkime
 spec:
   ports:
-  - name: "webgui"
-    port: 8443
+  - name: "http-webgui"
+    port: {{ .Values.listen_port }}
     targetPort: {{ .Values.listen_port }}
   selector:
     app: arkime-viewer

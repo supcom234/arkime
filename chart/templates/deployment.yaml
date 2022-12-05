@@ -22,7 +22,7 @@ spec:
         app: arkime-viewer
     spec:
       # initContainers:
-      # # Mount the elastic CA cert and run update-ca-certificates. 
+      # # Mount the elastic CA cert and run update-ca-certificates.
       # - name: arkime
       #   image: "{{ .Values.image }}:{{ .Values.version }}"
       #   imagePullPolicy: IfNotPresent
@@ -33,7 +33,7 @@ spec:
       #   - name: elastic_cert
       #     mountPath: "/usr/local/share/ca-certificates"
       #     readOnly: true
-          
+
       #   command: ["/bin/sh"]
       #   args: ["-c", "update-ca-certificates && cp /etc/ssl/certs/* /etc/ssl/pod_certs/*"]
 
@@ -54,7 +54,7 @@ spec:
         - name: ARKIME_PASSWORD
           value: "{{ .Values.password }}"
         ports:
-        - name: webgui
+        - name: http-webgui
           containerPort: {{ .Values.listen_port }}
         volumeMounts:
         - name: configini

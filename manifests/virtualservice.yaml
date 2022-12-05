@@ -12,6 +12,6 @@ spec:
   http:
     - route:
         - destination:
-            host: arkime.arkime.svc.cluster.local
+            host: arkime-viewer.arkime.svc.cluster.local
             port:
-              number: 8443
+              number: 8005
