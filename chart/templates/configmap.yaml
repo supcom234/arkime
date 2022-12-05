@@ -55,7 +55,7 @@ data:
     # Private key file to use, comment out to use http instead
     # keyFile=/etc/ssl/certs/moloch.key
     userNameHeader=uid
-    viewHost=localhost
+    viewHost=0.0.0.0
     requiredAuthHeader=roles
     requiredAuthHeaderVal=arkime-user
     userAutoCreateTmpl={"userId": "${this.uid}", "userName": "${this.uid}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": true, "removeEnabled": true, "packetSearch": true }
