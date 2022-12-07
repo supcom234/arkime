@@ -29,7 +29,10 @@ jobs:
 
       - name: Login to Registry One
         run: |
-          zarf tools registry login -u "${{secrets.REGISTRY1_USERNAME}}" -p "${{secrets.REGISTRY1_PASSWORD}}" "registry1.dso.mil"
+          zarf tools registry login \
+            -u "${{secrets.REGISTRY1_USERNAME}}" \
+            -p "${{secrets.REGISTRY1_PASSWORD}}" \
+            "registry1.dso.mil"
 
       - name: Configure AWS ECR Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -48,7 +51,11 @@ jobs:
             rm -rf ./tmp
           fi
           mkdir tmp
-          zarf package create --set BRANCH="${{ env.BRANCH_NAME }}" --confirm --tmpdir $PWD/tmp --skip-sbom
+          zarf package create \
+            --set BRANCH="${{ env.BRANCH_NAME }}" \
+            --confirm \
+            --tmpdir $PWD/tmp \
+            --skip-sbom
           rm -rf ./tmp
 
       - name: Configure AWS S3 Credentials
