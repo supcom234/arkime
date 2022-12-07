@@ -12,9 +12,7 @@ env:
   S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
   BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
-
 jobs:
-
   package-create:
     runs-on: ubuntu-latest
 
