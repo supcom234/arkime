@@ -1,31 +1,30 @@
-##
-## This is temporarially being removed until broader network policies are (re)enabled in the dco_foundation pkg
-##
-# apiVersion: networking.k8s.io/v1
-# kind: NetworkPolicy
-# metadata:
-#   name: allow-from-arkime
-#   labels:
-#     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-#     app.kubernetes.io/instance: {{ .Release.Name | quote }}
-#     app.kubernetes.io/version: {{ .Chart.AppVersion }}
-#   annotations:
-#     # This must be done before the firstrun.yaml Job runs
-#     "helm.sh/hook": pre-install
-#     "helm.sh/hook-weight": "1"
-#     "helm.sh/hook-delete-policy": before-hook-creation
-#   namespace: dataplane-ek
-# spec:
-#   podSelector:
-#     matchLabels:
-#       common.k8s.elastic.co/type: elasticsearch
-#   ingress:
-#     - ports:
-#         - protocol: TCP
-#           port: 9200
-#       from:
-#         - namespaceSelector:
-#             matchLabels:
-#               kubernetes.io/metadata.name: arkime
-#   policyTypes:
-#     - Ingress
+{{- if .Values.networkPolicies.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-arkime
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+  annotations:
+    # This must be done before the firstrun.yaml Job runs
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+  namespace: dataplane-ek
+spec:
+  podSelector:
+    matchLabels:
+      common.k8s.elastic.co/type: elasticsearch
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 9200
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: arkime
+  policyTypes:
+    - Ingress
+{{- end }}

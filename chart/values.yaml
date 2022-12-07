@@ -50,3 +50,6 @@ maxESConns: "30"
 maxESRequests: "500"
 packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
+
+networkPolicies:
+  enabled: false
