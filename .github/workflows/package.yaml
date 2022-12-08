@@ -25,13 +25,6 @@ jobs:
         with:
           version: v0.22.2
 
-      - name: Login to Registry One
-        run: |
-          zarf tools registry login \
-            -u "${{secrets.REGISTRY1_USERNAME}}" \
-            -p "${{secrets.REGISTRY1_PASSWORD}}" \
-            "registry1.dso.mil"
-
       - name: Configure AWS ECR Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
