@@ -42,7 +42,7 @@ jobs:
       - name: Copy build assets from S3
         run: |
           mkdir -p assets
-          aws s3 cp --no-progress "${{ env.S3_PATH }}"/ assets --recursive
+          aws s3 cp --no-progress "${{ env.S3_PATH }}" assets --recursive
 
       - name: Build Image
         run: |
