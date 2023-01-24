@@ -15,7 +15,7 @@ echo "ElasticSearch is ready! Checking Arkime index and version"
 # See if database is configured already
 DB_VER=`/opt/arkime/db/db.pl ${elastic_url} info | grep 'DB Version' | awk '{print $3}'`;
 
-if [ -n "$DB_VER" ]; then
+if [[ -n "$DB_VER" && "$DB_VER" -ne -1 ]]; then
   echo "Database version is $DB_VER, skipping initial setup"
   echo "Checking if database upgrade is necessary"
 
