@@ -2,7 +2,7 @@
 
 # Container image
 image: "765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4"
-version: "4"
+version: "20230126"
 
 # URL
 viewer_url: arkime.kit1.voltron.lan
