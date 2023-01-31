@@ -47,7 +47,7 @@ spec:
             cpu: {{ .Values.cpu_request }}m
         command: ["/bin/sh"]
 #        args: ["-c", "/opt/arkime/bin/node /opt/arkime/viewer/viewer.js -c /opt/arkime/etc/config.ini >> /opt/arkime/logs/viewer.log 2>&1" ]
-        args: ["-c", "update-ca-certificates && /opt/arkime/bin/node /opt/arkime/viewer/viewer.js -c /opt/arkime/etc/config.ini" ]
+        args: ["-c", "update-ca-certificates && cd /opt/arkime/viewer && /opt/arkime/bin/node /opt/arkime/viewer/viewer.js -c /opt/arkime/etc/config.ini" ]
         env:
         - name: ARKIME_USER
           value: "{{ .Values.username }}"
