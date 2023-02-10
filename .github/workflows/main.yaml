@@ -27,7 +27,6 @@ jobs:
       IMAGE_NAME: ${{ env.IMAGE_NAME }}
       IMAGE_TAG: ${{ env.IMAGE_TAG }}
       ZARF_PACKAGE: ${{ env.ZARF_PACKAGE }}
-      BB_MIN_S3_PATH: ${{ env.BB_MIN_S3_PATH }}
       BB_MIN_PACKAGE: ${{ env.BB_MIN_PACKAGE }}
     steps:
     - run: echo "Exposing env vars"
@@ -46,9 +45,7 @@ jobs:
     uses: ./.github/workflows/package.yaml
     secrets: inherit
     with:
-      ZARF_S3_PATH: ${{ needs.vars.outputs.ZARF_S3_PATH }}
       BRANCH_NAME: ${{ needs.vars.outputs.BRANCH_NAME }}
       ZARF_PACKAGE: ${{ needs.vars.outputs.ZARF_PACKAGE }}
-      BB_MIN_S3_PATH: ${{ needs.vars.outputs.BB_MIN_S3_PATH }}
       BB_MIN_PACKAGE: ${{ needs.vars.outputs.BB_MIN_PACKAGE }}
       IMAGE_TAG: ${{ needs.vars.outputs.IMAGE_TAG }}
