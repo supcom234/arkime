@@ -12,9 +12,11 @@ env:
   S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
   BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
+  BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/dco-foundation/main"
+  BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
 jobs:
   package-create:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout
@@ -55,6 +57,26 @@ jobs:
           role-to-assume: ${{secrets.AWS_ROLE}}
           role-session-name: arkime-s3
           aws-region: us-east-1
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '^1.19.5'
+          cache: true        
+
+      - name: Pull BB minimal package needed for testing
+        run: |
+          aws s3 cp --no-progress "${{ env.BB_MIN_S3_PATH }}/${{ env.BB_MIN_PACKAGE }}" "${{ env.BB_MIN_PACKAGE }}"
+
+      - name: Install dependencies for terratest
+        working-directory: ./test
+        run: |
+          go get .
+
+      - name: Run component test
+        working-directory: ./test
+        run: |
+          go test
 
       - name: Publish to S3
         run: |
