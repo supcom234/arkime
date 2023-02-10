@@ -14,11 +14,12 @@ func TestZarfPackage(t *testing.T) {
     gitBranch := os.Getenv("BRANCH_NAME")
     // bbPackage := os.Getenv("BIGBANG_PACKAGE_PATH")
     // testPackage := os.Getenv("TEST_PACKAGE_PATH")
-
+    
     if (gitBranch == "") {
         gitBranch = "main"
     }
-
+    
+    t.Log("Using branch name: " + gitBranch)
     cwd, err := os.Getwd()
 
     if (err != nil){
@@ -41,15 +42,17 @@ func TestZarfPackage(t *testing.T) {
         Env:     testEnv,
     }
 
-    // to leave cluster up for examination, comment this out from here ->
     clusterTeardownCmd := shell.Command{
         Command: "k3d",
         Args:    []string{"cluster", "delete", "test-arkime"},
         Env:     testEnv,
     }
 
+    // if this was already running, go ahead and tear it down now.
+    shell.RunCommand(t, clusterTeardownCmd)
+    
+    // to leave cluster up for examination after this run, comment this out:
     defer shell.RunCommand(t, clusterTeardownCmd)
-    // <- to here.
 
     shell.RunCommand(t, clusterSetupCmd)
 
