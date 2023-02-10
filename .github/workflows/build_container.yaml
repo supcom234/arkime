@@ -48,12 +48,12 @@ jobs:
 
       - name: Build Image
         run: |
-          IMAGE_TAG="${{ input.IMAGE_TAG }}"
+          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
           docker build -t "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG" .
 
       - name: Publish to ECR
         run: |
-          IMAGE_TAG="${{ input.IMAGE_TAG }}"
+          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
           docker push "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG"
