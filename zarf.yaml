@@ -7,7 +7,7 @@ metadata:
 
 constants:
   - name: IMAGE_TAG
-    value: '###ZARF_PKG_VAR_PROMPT_ON_CREATE###'
+    value: '###ZARF_PKG_VAR_IMAGE_TAG###'
 
 variables:
   # Prompt user for the domain override
@@ -39,4 +39,4 @@ components:
           - manifests/helmrelease.yaml
           - manifests/virtualservice.yaml
     images:
-      - '765814079306.dkr.ecr.us-east-1.amazonaws.com/###ZARF_PKG_VAR_IMAGE_TAG###'
+      - '765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4:###ZARF_PKG_VAR_IMAGE_TAG###'
