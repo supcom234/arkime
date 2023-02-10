@@ -3,16 +3,10 @@ run-name: ${{github.actor}} is building the Arkime Zarf Package
 on:
   workflow_call:
     inputs:
-      ZARF_S3_PATH:
-        required: true
-        type: string
       BRANCH_NAME:
         required: true
         type: string
       ZARF_PACKAGE:
-        required: true
-        type: string
-      BB_MIN_S3_PATH:
         required: true
         type: string
       BB_MIN_PACKAGE:
@@ -21,6 +15,10 @@ on:
       IMAGE_TAG:
         required: true
         type: string    
+
+env:
+  ZARF_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
+  BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/naps-dev/dco-foundation/main"
 
 jobs:
   package-create:
@@ -82,7 +80,7 @@ jobs:
 
       - name: Pull BB minimal package needed for testing
         run: |
-          aws s3 cp --no-progress "${{ inputs.BB_MIN_S3_PATH }}/${{ inputs.BB_MIN_PACKAGE }}" "${{ inputs.BB_MIN_PACKAGE }}"
+          aws s3 cp --no-progress "${{ env.BB_MIN_S3_PATH }}/${{ inputs.BB_MIN_PACKAGE }}" "${{ inputs.BB_MIN_PACKAGE }}"
 
       - name: Install dependencies for terratest
         run: |
@@ -95,4 +93,4 @@ jobs:
 
       - name: Publish to S3
         run: |
-          aws s3 cp --no-progress "${{ inputs.ZARF_PACKAGE }}" "${{ inputs.ZARF_S3_PATH }}/${{ inputs.ZARF_PACKAGE }}"
+          aws s3 cp --no-progress "${{ inputs.ZARF_PACKAGE }}" "${{ env.ZARF_S3_PATH }}/${{ inputs.ZARF_PACKAGE }}"

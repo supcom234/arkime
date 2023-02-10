@@ -6,29 +6,26 @@ on:
   push:
     branches: [main]
     tags: "*"
+
 permissions:
   id-token: write
   contents: read
+
 env:
-  IMAGE_S3_PATH: "s3://${{ secrets.AWS_ASSETS_BUCKET }}/arkime/"
-  ZARF_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
   BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
   IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
   IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
-  BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/naps-dev/dco-foundation/main"
   BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
-jobs:
 
+jobs:
   # Necessary workaround to get env vars passed to the real jobs
   propagate-env:
     runs-on: ubuntu-22.04
     outputs:
-      IMAGE_S3_PATH: ${{ env.IMAGE_S3_PATH }}
       BRANCH_NAME: ${{ env.BRANCH_NAME }}
       IMAGE_NAME: ${{ env.IMAGE_NAME }}
       IMAGE_TAG: ${{ env.IMAGE_TAG }}
-      ZARF_S3_PATH: ${{ env.ZARF_S3_PATH }}
       ZARF_PACKAGE: ${{ env.ZARF_PACKAGE }}
       BB_MIN_S3_PATH: ${{ env.BB_MIN_S3_PATH }}
       BB_MIN_PACKAGE: ${{ env.BB_MIN_PACKAGE }}
@@ -40,7 +37,6 @@ jobs:
     uses: ./.github/workflows/build_container.yaml
     secrets: inherit
     with:
-      IMAGE_S3_PATH: ${{ needs.vars.outputs.IMAGE_S3_PATH }}
       BRANCH_NAME: ${{ needs.vars.outputs.BRANCH_NAME }}
       IMAGE_NAME: ${{ needs.vars.outputs.IMAGE_NAME }}
       IMAGE_TAG: ${{ needs.vars.outputs.IMAGE_TAG }}

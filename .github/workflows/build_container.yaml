@@ -3,9 +3,9 @@ run-name: ${{github.actor}} is building the Arkime Container Image
 on:
   workflow_call:
     inputs:
-      IMAGE_S3_PATH:
-          required: true
-          type: string
+      # IMAGE_S3_PATH:
+      #     required: true
+      #     type: string
       BRANCH_NAME: 
           required: true
           type: string
@@ -15,6 +15,9 @@ on:
       IMAGE_TAG: 
           required: true
           type: string
+env:
+  IMAGE_S3_PATH: "s3://${{ secrets.AWS_ASSETS_BUCKET }}/arkime/"
+
 jobs:
   image-create:
     runs-on: ubuntu-latest
@@ -44,7 +47,7 @@ jobs:
       - name: Copy build assets from S3
         run: |
           mkdir -p assets
-          aws s3 cp --no-progress "${{ inputs.IMAGE_S3_PATH }}" assets --recursive
+          aws s3 cp --no-progress "${{ env.IMAGE_S3_PATH }}" assets --recursive
 
       - name: Build Image
         run: |
