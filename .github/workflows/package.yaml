@@ -73,6 +73,7 @@ jobs:
           go get -t ./...
 
       - name: Run component test
+        working-directory: ./test
         run: |
           go test
 
