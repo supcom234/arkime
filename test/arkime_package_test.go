@@ -11,7 +11,7 @@ import (
 )
 
 func TestZarfPackage(t *testing.T) {
-    gitBranch := os.Getenv("GITHUB_REF")
+    gitBranch := os.Getenv("BRANCH_NAME")
     // bbPackage := os.Getenv("BIGBANG_PACKAGE_PATH")
     // testPackage := os.Getenv("TEST_PACKAGE_PATH")
 
