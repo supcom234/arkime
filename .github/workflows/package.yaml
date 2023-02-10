@@ -69,12 +69,10 @@ jobs:
           aws s3 cp --no-progress "${{ env.BB_MIN_S3_PATH }}/${{ env.BB_MIN_PACKAGE }}" "${{ env.BB_MIN_PACKAGE }}"
 
       - name: Install dependencies for terratest
-        working-directory: ./test
         run: |
-          go get .
+          go get -t ./...
 
       - name: Run component test
-        working-directory: ./test
         run: |
           go test
 
