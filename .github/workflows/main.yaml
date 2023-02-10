@@ -41,7 +41,7 @@ jobs:
       IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}
 
   package-create:
-    needs: build-container
+    needs: [build-container, propagate-env]
     uses: ./.github/workflows/package.yaml
     secrets: inherit
     with:
