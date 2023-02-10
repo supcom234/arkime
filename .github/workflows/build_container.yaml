@@ -1,21 +1,22 @@
 name: Build Arkime Image
 run-name: ${{github.actor}} is building the Arkime Container Image
 on:
-  pull_request:
-    types: [opened, synchronize]
-  push:
-    branches: [main]
-    tags: "*"
-permissions:
-  id-token: write
-  contents: read
-env:
-  S3_PATH: "s3://${{ secrets.AWS_ASSETS_BUCKET }}/arkime/"
-  BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
-  IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
-  IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
+  workflow_call:
+    inputs:
+      IMAGE_S3_PATH:
+          required: true
+          type: string
+      BRANCH_NAME: 
+          required: true
+          type: string
+      IMAGE_NAME: 
+          required: true
+          type: string
+      IMAGE_TAG: 
+          required: true
+          type: string
 jobs:
-  package-create:
+  image-create:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +26,7 @@ jobs:
       - name: Configure AWS ECR Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: ${{secrets.AWS_ECR_ROLE}}
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE }}
           role-session-name: arkime-ecr
           aws-region: us-east-1
 
@@ -36,23 +37,23 @@ jobs:
       - name: Configure AWS S3 Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: ${{secrets.AWS_ROLE}}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
           role-session-name: arkime-s3
           aws-region: us-east-1
 
       - name: Copy build assets from S3
         run: |
           mkdir -p assets
-          aws s3 cp --no-progress "${{ env.S3_PATH }}" assets --recursive
+          aws s3 cp --no-progress "${{ input.IMAGE_S3_PATH }}" assets --recursive
 
       - name: Build Image
         run: |
-          IMAGE_TAG="${{ env.IMAGE_TAG }}"
+          IMAGE_TAG="${{ input.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker build -t "${{ env.IMAGE_NAME }}":"$IMAGE_TAG" .
+          docker build -t "${{ input.IMAGE_NAME }}":"$IMAGE_TAG" .
 
       - name: Publish to ECR
         run: |
-          IMAGE_TAG="${{ env.IMAGE_TAG }}"
+          IMAGE_TAG="${{ input.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker push "${{ env.IMAGE_NAME }}":"$IMAGE_TAG"
+          docker push "${{ input.IMAGE_NAME }}":"$IMAGE_TAG"

@@ -1,19 +1,27 @@
 name: Package Arkime
 run-name: ${{github.actor}} is building the Arkime Zarf Package
 on:
-  pull_request:
-    types: [opened, synchronize]
-  push:
-    branches: [main]
-permissions:
-  id-token: write
-  contents: read
-env:
-  S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
-  BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
-  ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
-  BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/naps-dev/dco-foundation/main"
-  BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
+  workflow_call:
+    inputs:
+      ZARF_S3_PATH:
+        required: true
+        type: string
+      BRANCH_NAME:
+        required: true
+        type: string
+      ZARF_PACKAGE:
+        required: true
+        type: string
+      BB_MIN_S3_PATH:
+        required: true
+        type: string
+      BB_MIN_PACKAGE:
+        required: true
+        type: string
+      IMAGE_TAG:
+        required: true
+        type: string    
+
 jobs:
   package-create:
     runs-on: [self-hosted, onprem]
@@ -46,7 +54,8 @@ jobs:
           fi
           mkdir tmp
           zarf package create \
-            --set BRANCH="${{ env.BRANCH_NAME }}" \
+            --set BRANCH="${{ input.BRANCH_NAME }}" \
+            --set IMAGE_TAG="${{ input.IMAGE_TAG }}" \
             --confirm \
             --tmpdir $PWD/tmp \
             --skip-sbom
@@ -73,7 +82,7 @@ jobs:
 
       - name: Pull BB minimal package needed for testing
         run: |
-          aws s3 cp --no-progress "${{ env.BB_MIN_S3_PATH }}/${{ env.BB_MIN_PACKAGE }}" "${{ env.BB_MIN_PACKAGE }}"
+          aws s3 cp --no-progress "${{ input.BB_MIN_S3_PATH }}/${{ input.BB_MIN_PACKAGE }}" "${{ input.BB_MIN_PACKAGE }}"
 
       - name: Install dependencies for terratest
         run: |
@@ -86,4 +95,4 @@ jobs:
 
       - name: Publish to S3
         run: |
-          aws s3 cp --no-progress "${{ env.ZARF_PACKAGE }}" "${{ env.S3_PATH }}/${{ env.ZARF_PACKAGE }}"
+          aws s3 cp --no-progress "${{ input.ZARF_PACKAGE }}" "${{ input.ZARF_S3_PATH }}/${{ input.ZARF_PACKAGE }}"
