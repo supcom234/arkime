@@ -44,16 +44,16 @@ jobs:
       - name: Copy build assets from S3
         run: |
           mkdir -p assets
-          aws s3 cp --no-progress "${{ input.IMAGE_S3_PATH }}" assets --recursive
+          aws s3 cp --no-progress "${{ inputs.IMAGE_S3_PATH }}" assets --recursive
 
       - name: Build Image
         run: |
           IMAGE_TAG="${{ input.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker build -t "${{ input.IMAGE_NAME }}":"$IMAGE_TAG" .
+          docker build -t "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG" .
 
       - name: Publish to ECR
         run: |
           IMAGE_TAG="${{ input.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker push "${{ input.IMAGE_NAME }}":"$IMAGE_TAG"
+          docker push "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG"
