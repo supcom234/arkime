@@ -16,7 +16,7 @@ env:
   BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
 jobs:
   package-create:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, on-prem]
 
     steps:
       - name: Checkout
