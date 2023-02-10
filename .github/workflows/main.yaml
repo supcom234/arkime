@@ -36,16 +36,16 @@ jobs:
     uses: ./.github/workflows/build_container.yaml
     secrets: inherit
     with:
-      BRANCH_NAME: ${{ needs.vars.outputs.BRANCH_NAME }}
-      IMAGE_NAME: ${{ needs.vars.outputs.IMAGE_NAME }}
-      IMAGE_TAG: ${{ needs.vars.outputs.IMAGE_TAG }}
+      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
+      IMAGE_NAME: ${{ needs.propagate-env.outputs.IMAGE_NAME }}
+      IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}
 
   package-create:
     needs: build-container
     uses: ./.github/workflows/package.yaml
     secrets: inherit
     with:
-      BRANCH_NAME: ${{ needs.vars.outputs.BRANCH_NAME }}
-      ZARF_PACKAGE: ${{ needs.vars.outputs.ZARF_PACKAGE }}
-      BB_MIN_PACKAGE: ${{ needs.vars.outputs.BB_MIN_PACKAGE }}
-      IMAGE_TAG: ${{ needs.vars.outputs.IMAGE_TAG }}
+      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
+      ZARF_PACKAGE: ${{ needs.propagate-env.outputs.ZARF_PACKAGE }}
+      BB_MIN_PACKAGE: ${{ needs.propagate-env.outputs.BB_MIN_PACKAGE }}
+      IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}
