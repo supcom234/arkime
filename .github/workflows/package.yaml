@@ -54,7 +54,7 @@ jobs:
           fi
           mkdir tmp
           zarf package create \
-            --set BRANCH="${{ input.BRANCH_NAME }}" \
+            --set BRANCH="${{ inputs.BRANCH_NAME }}" \
             --set IMAGE_TAG="${{ inputs.IMAGE_TAG }}" \
             --confirm \
             --tmpdir $PWD/tmp \
