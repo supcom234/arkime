@@ -35,7 +35,7 @@ func TestZarfPackage(t *testing.T) {
     clusterSetupCmd := shell.Command{
         Command: "k3d",
         Args:    []string{"cluster", "create", "test-arkime",
-                          "--k3s-arg", "--no-deploy=traefik@server:*",
+                          "--k3s-arg", "--disable=traefik@server:*",
                           "--port", "0:443@loadbalancer",
                           "--port", "0:80@loadbalancer"},
         Env:     testEnv,
