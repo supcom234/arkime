@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize]
   push:
     branches: [main]
-    tags: "*"
+    tags: ["v**"]
 
 permissions:
   id-token: write
