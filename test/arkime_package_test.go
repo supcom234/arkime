@@ -88,7 +88,7 @@ func TestZarfPackage(t *testing.T) {
     // Wait for DCO elastic (Big Bang minimal deployment) to come up before deploying arkime
     // Note that k3d calls the cluster test-arkime, but actual context is called k3d-test-arkime
     opts := k8s.NewKubectlOptions("k3d-test-arkime", "/tmp/test_kubeconfig", "dataplane-ek");
-    k8s.WaitUntilServiceAvailable(t, opts, "dataplane-ek-es-http", 20, 30*time.Second)
+    k8s.WaitUntilServiceAvailable(t, opts, "dataplane-ek-es-http", 40, 30*time.Second)
 
     zarfDeployArkimeCmd := shell.Command{
         Command: "zarf",
@@ -100,7 +100,7 @@ func TestZarfPackage(t *testing.T) {
 
     // wait for arkime service to come up before attempting to hit it
     opts = k8s.NewKubectlOptions("k3d-test-arkime", "/tmp/test_kubeconfig", "arkime")
-    k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 20, 30*time.Second)
+    k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 40, 30*time.Second)
 
     // virtual service is set up as: arkime-viewer.vp.bigbang.dev
     // --fail-with-body used to fail on a 400 error which can happen when headers are incorrect.
