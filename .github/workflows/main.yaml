@@ -1,0 +1,51 @@
+name: Build Arkime Image and Zarf Package
+run-name: ${{github.actor}} is building the Arkime image and Zarf package
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+    tags: ["v**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
+  IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
+  IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
+  ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
+  BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
+
+jobs:
+  # Necessary workaround to get env vars passed to the real jobs
+  propagate-env:
+    runs-on: ubuntu-22.04
+    outputs:
+      BRANCH_NAME: ${{ env.BRANCH_NAME }}
+      IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      IMAGE_TAG: ${{ env.IMAGE_TAG }}
+      ZARF_PACKAGE: ${{ env.ZARF_PACKAGE }}
+      BB_MIN_PACKAGE: ${{ env.BB_MIN_PACKAGE }}
+    steps:
+    - run: echo "Exposing env vars"
+
+  build-container:
+    needs: propagate-env
+    uses: ./.github/workflows/build_container.yaml
+    secrets: inherit
+    with:
+      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
+      IMAGE_NAME: ${{ needs.propagate-env.outputs.IMAGE_NAME }}
+      IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}
+
+  package-create:
+    needs: [build-container, propagate-env]
+    uses: ./.github/workflows/package.yaml
+    secrets: inherit
+    with:
+      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
+      ZARF_PACKAGE: ${{ needs.propagate-env.outputs.ZARF_PACKAGE }}
+      BB_MIN_PACKAGE: ${{ needs.propagate-env.outputs.BB_MIN_PACKAGE }}
+      IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}

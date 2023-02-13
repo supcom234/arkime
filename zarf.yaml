@@ -5,6 +5,10 @@ metadata:
   # Big Bang / Iron Bank are only amd64
   architecture: amd64
 
+constants:
+  - name: IMAGE_TAG
+    value: '###ZARF_PKG_VAR_IMAGE_TAG###'
+
 variables:
   # Prompt user for the domain override
   - name: DOMAIN
@@ -35,4 +39,4 @@ components:
           - manifests/helmrelease.yaml
           - manifests/virtualservice.yaml
     images:
-      - "765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4:20230126"
+      - '765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4:###ZARF_PKG_VAR_IMAGE_TAG###'
