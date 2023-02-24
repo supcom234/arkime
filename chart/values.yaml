@@ -17,12 +17,6 @@ cpu_request: 1000
 
 # ElasticSearch Configuration
 
-# Run the Arkime db.pl script to do ElasticSearch initialization. This should
-# be set to "true" the first time you do a helm install of this chart. If for
-# whatever reason you delete this chart but leave ElasticSearch unchanged, this
-# should be set to "false" if you re-install Arkime with this chart.
-performElasticInit: true
-
 # URL that Arkime will use to communicate with the ElasticSearch REST endpoint
 # This is probably going to be the ElasticSearch API k8s service.
 elastic_namespace: dataplane-ek
@@ -38,10 +32,6 @@ elastic_user: elastic
 elastic_protocol: https
 elastic_host: dataplane-ek-es-http.dataplane-ek.svc
 elastic_port: 9200
-
-# Name of the secret containing the Certificate Authority certificate used to
-# sign the ElasticSearch cert in use.
-# elastic_cert: dataplane-ek-es-http-certs-public
 
 # Copy of the ElasticSearch CA cert in the Arkime namespace for our use.
 elastic_cert_arkime: arkime-ek-es-http-certs-public

@@ -19,11 +19,6 @@ variables:
     default: "main"
     prompt: true
 
-  - name: FIRST_INSTALL
-    default: "false"
-    description: "When set, the chart will attempt to initialize elasticsearch -- THIS SHOULD ONLY BE USED ONCE"
-    prompt: true
-
 components:
   - name: arkime
     description: "Arkime traffic monitoring and analysis tool"

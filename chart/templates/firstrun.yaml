@@ -1,5 +1,3 @@
-{{- if .Values.performElasticInit -}}
-
 {{- $elastic_secret := (lookup "v1" "Secret" "dataplane-ek" .Values.elastic_pass).data }}
 {{- $elastic_password := get $elastic_secret .Values.elastic_user | b64dec }}
 apiVersion: batch/v1
@@ -59,4 +57,3 @@ spec:
       - name: elastic-cert
         secret:
           secretName: {{ .Values.elastic_cert_arkime }}
-{{- end -}}
