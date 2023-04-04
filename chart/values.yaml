@@ -36,6 +36,9 @@ elastic_port: 9200
 # Copy of the ElasticSearch CA cert in the Arkime namespace for our use.
 elastic_cert_arkime: arkime-ek-es-http-certs-public
 
+# Interface to capture traffic on
+capture_interface: notset
+
 maxESConns: "30"
 maxESRequests: "500"
 packetsPerPoll: "500000"

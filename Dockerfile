@@ -9,7 +9,7 @@ ARG ARKIME_URL=https://s3.amazonaws.com/files.molo.ch/builds/ubuntu-${UBUNTU_VER
 
 # Required dependencies
 RUN apt-get update && \
-    apt-get install -yq curl libmagic-dev wget logrotate
+    apt-get install -yq curl libmagic-dev wget logrotate iproute2
 
 RUN echo "curl -C - -O $ARKIME_URL"
 RUN curl -C - -O "$ARKIME_URL"

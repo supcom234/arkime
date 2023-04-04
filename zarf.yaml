@@ -19,6 +19,10 @@ variables:
     default: "main"
     prompt: true
 
+  - name: CAPTURE_INTERFACE
+    default: "cni0"
+    prompt: false
+
 components:
   - name: arkime
     description: "Arkime traffic monitoring and analysis tool"

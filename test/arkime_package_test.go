@@ -9,13 +9,16 @@ import (
 	"github.com/gruntwork-io/terratest/modules/docker"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/shell"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestZarfPackage(t *testing.T) {
+	kubeconfigPath := "/tmp/arkime_test_kubeconfig"
 	gitBranch := os.Getenv("BRANCH_NAME")
 	// bbPackage := os.Getenv("BIGBANG_PACKAGE_PATH")
 	// testPackage := os.Getenv("TEST_PACKAGE_PATH")
 
+	t.Log("Passed branch name: " + gitBranch)
 	if gitBranch == "" {
 		gitBranch = "main"
 	}
@@ -31,7 +34,7 @@ func TestZarfPackage(t *testing.T) {
 
 	// Additional test environment vars. Use this to make sure proper kubeconfig is being referenced by k3d
 	testEnv := map[string]string{
-		"KUBECONFIG": "/tmp/test_kubeconfig",
+		"KUBECONFIG": kubeconfigPath,
 	}
 
 	clusterSetupCmd := shell.Command{
@@ -39,7 +42,9 @@ func TestZarfPackage(t *testing.T) {
 		Args: []string{"cluster", "create", "test-arkime",
 			"--k3s-arg", "--disable=traefik@server:*",
 			"--port", "0:443@loadbalancer",
-			"--port", "0:80@loadbalancer"},
+			"--port", "0:80@loadbalancer",
+			"--agents", "2",
+			"--k3s-node-label", "arkime-capture=true@agent:0"},
 		Env: testEnv,
 	}
 
@@ -88,7 +93,7 @@ func TestZarfPackage(t *testing.T) {
 
 	// Wait for DCO elastic (Big Bang minimal deployment) to come up before deploying arkime
 	// Note that k3d calls the cluster test-arkime, but actual context is called k3d-test-arkime
-	opts := k8s.NewKubectlOptions("k3d-test-arkime", "/tmp/test_kubeconfig", "dataplane-ek")
+	opts := k8s.NewKubectlOptions("k3d-test-arkime", kubeconfigPath, "dataplane-ek")
 	k8s.WaitUntilServiceAvailable(t, opts, "dataplane-ek-es-http", 40, 30*time.Second)
 
 	zarfDeployArkimeCmd := shell.Command{
@@ -100,7 +105,7 @@ func TestZarfPackage(t *testing.T) {
 	shell.RunCommand(t, zarfDeployArkimeCmd)
 
 	// wait for arkime service to come up before attempting to hit it
-	opts = k8s.NewKubectlOptions("k3d-test-arkime", "/tmp/test_kubeconfig", "arkime")
+	opts = k8s.NewKubectlOptions("k3d-test-arkime", kubeconfigPath, "arkime")
 	k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 40, 30*time.Second)
 
 	//-------------------------------------------------------------------------
@@ -141,5 +146,18 @@ func TestZarfPackage(t *testing.T) {
 	t.Run("Arkime runs succesfully post initial setup", func(t *testing.T) {
 		k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 40, 30*time.Second)
 		shell.RunCommand(t, curlCmd)
+	})
+
+	//-------------------------------------------------------------------------
+	// @TODO: Sensor tests
+	//-------------------------------------------------------------------------
+	t.Run("Arkime sensor is running", func(t *testing.T) {
+		pods := k8s.ListPods(t, opts, v1.ListOptions{
+			LabelSelector: "k8s-app=arkime-sensor",
+		})
+
+		for _, pod := range pods {
+			t.Log("Pod log: " + k8s.GetPodLogs(t, opts, &pod, ""))
+		}
 	})
 }

@@ -49,11 +49,11 @@ spec:
           mountPath: /opt/arkime/etc/config.ini
         - name: elastic-cert
           mountPath: /usr/local/share/ca-certificates
+
       volumes:
       - name: configini
         configMap:
-          name: {{ .Release.Name }}
-
+          name: {{ .Release.Name }}-configini
       - name: elastic-cert
         secret:
           secretName: {{ .Values.elastic_cert_arkime }}

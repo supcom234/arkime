@@ -1,0 +1,72 @@
+# The arkime sensor uses the same container image that the server does.
+# It needs to be started with a different command.
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: arkime-sensor
+  namespace: arkime
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    component: arkime
+    app.kubernetes.io/name: arkime-sensor
+    k8s-app: arkime-sensor
+
+spec:
+  selector:
+    matchLabels:
+      app: arkime-sensor
+
+  template:
+    metadata:
+      labels:
+        app: arkime-sensor
+
+    spec:
+      nodeSelector:
+        arkime-capture: "true"
+      
+      # Necessary for opening physical interface
+      hostNetwork: true
+
+      # Necessary for DNS resolution to work despite hostNetwork
+      dnsPolicy: ClusterFirstWithHostNet
+
+      containers:
+      - name: arkime-sensor
+        image: "{{ .Values.image }}:{{ .Values.version }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "8192Mi"
+            cpu: "500m"
+        command: ["/bin/sh"]
+        args: ["-c", "update-ca-certificates && /opt/arkime/bin/capture -c /opt/arkime/etc/config.ini"]
+        volumeMounts:
+        - name: configini
+          subPath: config.ini
+          mountPath: /opt/arkime/etc/config.ini
+        - name: arkime-sensor-rules
+          subPath: rules.txt
+          mountPath: /opt/arkime/rules.txt
+        - name: elastic-cert
+          mountPath: /usr/local/share/ca-certificates
+        securityContext:
+          capabilities:
+            add:
+              # Necessary for mmap64() call to succeed w/ tpacket_v3 reader
+              - IPC_LOCK
+
+      volumes:
+      - name: configini
+        configMap:
+          name: {{ .Release.Name }}-configini
+      - name: arkime-sensor-rules
+        configMap:
+          name: arkime-sensor-rules
+      - name: elastic-cert
+        secret:
+          secretName: {{ .Values.elastic_cert_arkime }}
+      

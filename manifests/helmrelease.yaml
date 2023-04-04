@@ -36,4 +36,5 @@ spec:
   values:
     viewer_url: "arkime-viewer.###ZARF_VAR_DOMAIN###"
     version: "###ZARF_CONST_IMAGE_TAG###"
+    capture_interface: "###ZARF_VAR_CAPTURE_INTERFACE###"
 

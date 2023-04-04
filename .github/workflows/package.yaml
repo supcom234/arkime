@@ -19,6 +19,7 @@ on:
 env:
   ZARF_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
   BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/naps-dev/dco-foundation/main"
+  BRANCH_NAME: "${{ inputs.BRANCH_NAME }}"
 
 jobs:
   package-create:
@@ -31,7 +32,7 @@ jobs:
       - name: Install Zarf
         uses: defenseunicorns/setup-zarf@main
         with:
-          version: v0.23.0
+          version: v0.25.1
           download-init-package: true
 
       - name: Configure AWS ECR Credentials
@@ -89,7 +90,7 @@ jobs:
       - name: Run component test
         working-directory: ./test
         run: |
-          go test
+          go test -v -timeout 20m
       
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
