@@ -12,7 +12,8 @@ permissions:
   contents: read
 
 env:
-  BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
+  REF_NAME: "${{ github.head_ref || github.ref_name }}"
+  REF_TYPE: "${{ github.ref_type }}"
   IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
   IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
@@ -23,7 +24,8 @@ jobs:
   propagate-env:
     runs-on: ubuntu-22.04
     outputs:
-      BRANCH_NAME: ${{ env.BRANCH_NAME }}
+      REF_NAME: ${{ env.REF_NAME }}
+      REF_TYPE: ${{ env.REF_TYPE }}
       IMAGE_NAME: ${{ env.IMAGE_NAME }}
       IMAGE_TAG: ${{ env.IMAGE_TAG }}
       ZARF_PACKAGE: ${{ env.ZARF_PACKAGE }}
@@ -45,7 +47,8 @@ jobs:
     uses: ./.github/workflows/package.yaml
     secrets: inherit
     with:
-      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
+      REF_NAME: ${{ needs.propagate-env.outputs.REF_NAME }}
+      REF_TYPE: ${{ needs.propagate-env.outputs.REF_TYPE }}
       ZARF_PACKAGE: ${{ needs.propagate-env.outputs.ZARF_PACKAGE }}
       BB_MIN_PACKAGE: ${{ needs.propagate-env.outputs.BB_MIN_PACKAGE }}
       IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}

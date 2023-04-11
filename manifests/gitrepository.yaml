@@ -7,4 +7,4 @@ spec:
   interval: 1m
   url: https://github.com/naps-dev/arkime.git
   ref:
-    branch: "###ZARF_VAR_BRANCH###"
+    name: "###ZARF_CONST_GIT_REF###"

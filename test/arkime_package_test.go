@@ -14,16 +14,7 @@ import (
 
 func TestZarfPackage(t *testing.T) {
 	kubeconfigPath := "/tmp/arkime_test_kubeconfig"
-	gitBranch := os.Getenv("BRANCH_NAME")
-	// bbPackage := os.Getenv("BIGBANG_PACKAGE_PATH")
-	// testPackage := os.Getenv("TEST_PACKAGE_PATH")
 
-	t.Log("Passed branch name: " + gitBranch)
-	if gitBranch == "" {
-		gitBranch = "main"
-	}
-
-	t.Log("Using branch name: " + gitBranch)
 	cwd, err := os.Getwd()
 
 	if err != nil {
@@ -98,7 +89,7 @@ func TestZarfPackage(t *testing.T) {
 
 	zarfDeployArkimeCmd := shell.Command{
 		Command: "zarf",
-		Args:    []string{"package", "deploy", "../zarf-package-arkime-amd64.tar.zst", "--confirm", "--set", "BRANCH=" + gitBranch},
+		Args:    []string{"package", "deploy", "../zarf-package-arkime-amd64.tar.zst", "--confirm"},
 		Env:     testEnv,
 	}
 

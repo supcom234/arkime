@@ -6,6 +6,10 @@ metadata:
   architecture: amd64
 
 constants:
+  - name: GIT_REF
+    description: "Provide the BRANCH (refs/heads/BRANCH) or TAG (refs/tags/TAG) git ref to identify the git reference to deploy"
+    value: "###ZARF_PKG_TMPL_GIT_REF###"
+
   - name: IMAGE_TAG
     value: '###ZARF_PKG_VAR_IMAGE_TAG###'
 
@@ -14,10 +18,6 @@ variables:
   - name: DOMAIN
     default: "vp.bigbang.dev"
     prompt: false
-
-  - name: BRANCH
-    default: "main"
-    prompt: true
 
   - name: CAPTURE_INTERFACE
     default: "cni0"
