@@ -38,7 +38,6 @@ jobs:
     uses: ./.github/workflows/build_container.yaml
     secrets: inherit
     with:
-      BRANCH_NAME: ${{ needs.propagate-env.outputs.BRANCH_NAME }}
       IMAGE_NAME: ${{ needs.propagate-env.outputs.IMAGE_NAME }}
       IMAGE_TAG: ${{ needs.propagate-env.outputs.IMAGE_TAG }}
 

@@ -3,9 +3,6 @@ run-name: ${{github.actor}} is building the Arkime Container Image
 on:
   workflow_call:
     inputs:
-      BRANCH_NAME: 
-          required: true
-          type: string
       IMAGE_NAME: 
           required: true
           type: string
