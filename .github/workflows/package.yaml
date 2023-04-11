@@ -63,7 +63,7 @@ jobs:
             --skip-sbom
           rm -rf ./tmp
       
-            - name: Create Zarf Package from Tag
+      - name: Create Zarf Package from Tag
         if: ${{ inputs.REF_TYPE == 'tag'}}
         run: |
           if [ -d "./tmp" ]; then
