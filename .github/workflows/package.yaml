@@ -56,7 +56,7 @@ jobs:
           fi
           mkdir tmp
           zarf package create \
-            --set GIT_REF=refs/heads/"${{ inputs.REF_NAME }}" \
+            --set GIT_REF=refs/heads/${{ inputs.REF_NAME }} \
             --set IMAGE_TAG="${{ inputs.IMAGE_TAG }}" \
             --confirm \
             --tmpdir $PWD/tmp \
@@ -71,7 +71,7 @@ jobs:
           fi
           mkdir tmp
           zarf package create \
-            --set GIT_REF=refs/tags/"${{ inputs.REF_NAME }}" \
+            --set GIT_REF=refs/tags/${{ inputs.REF_NAME }} \
             --set IMAGE_TAG="${{ inputs.IMAGE_TAG }}" \
             --confirm \
             --tmpdir $PWD/tmp \
