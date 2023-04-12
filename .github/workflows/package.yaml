@@ -3,7 +3,10 @@ run-name: ${{github.actor}} is building the Arkime Zarf Package
 on:
   workflow_call:
     inputs:
-      BRANCH_NAME:
+      REF_NAME:
+        required: true
+        type: string
+      REF_TYPE:
         required: true
         type: string
       ZARF_PACKAGE:
@@ -19,7 +22,6 @@ on:
 env:
   ZARF_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/${{ github.repository }}/${{ github.head_ref || github.ref_name }}"
   BB_MIN_S3_PATH: "s3://${{ secrets.AWS_BUCKET }}/naps-dev/dco-foundation/main"
-  BRANCH_NAME: "${{ inputs.BRANCH_NAME }}"
 
 jobs:
   package-create:
@@ -46,14 +48,30 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         id: login-ecr
 
-      - name: Create Zarf Package
+      - name: Create Zarf Package from Branch
+        if: ${{ inputs.REF_TYPE == 'branch'}}
         run: |
           if [ -d "./tmp" ]; then
             rm -rf ./tmp
           fi
           mkdir tmp
           zarf package create \
-            --set BRANCH="${{ inputs.BRANCH_NAME }}" \
+            --set GIT_REF=refs/heads/"${{ inputs.REF_NAME }}" \
+            --set IMAGE_TAG="${{ inputs.IMAGE_TAG }}" \
+            --confirm \
+            --tmpdir $PWD/tmp \
+            --skip-sbom
+          rm -rf ./tmp
+      
+      - name: Create Zarf Package from Tag
+        if: ${{ inputs.REF_TYPE == 'tag'}}
+        run: |
+          if [ -d "./tmp" ]; then
+            rm -rf ./tmp
+          fi
+          mkdir tmp
+          zarf package create \
+            --set GIT_REF=refs/tags/"${{ inputs.REF_NAME }}" \
             --set IMAGE_TAG="${{ inputs.IMAGE_TAG }}" \
             --confirm \
             --tmpdir $PWD/tmp \
