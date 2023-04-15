@@ -1,12 +1,15 @@
 package test
 
 import (
+	"context"
+	"net"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/docker"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/gruntwork-io/terratest/modules/shell"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,6 +17,7 @@ import (
 
 func TestZarfPackage(t *testing.T) {
 	kubeconfigPath := "/tmp/arkime_test_kubeconfig"
+	clusterName := "test-arkime"
 
 	cwd, err := os.Getwd()
 
@@ -30,10 +34,9 @@ func TestZarfPackage(t *testing.T) {
 
 	clusterSetupCmd := shell.Command{
 		Command: "k3d",
-		Args: []string{"cluster", "create", "test-arkime",
+		Args: []string{"cluster", "create", clusterName,
 			"--k3s-arg", "--disable=traefik@server:*",
-			"--port", "0:443@loadbalancer",
-			"--port", "0:80@loadbalancer",
+			"--k3s-arg", "--disable=servicelb@server:*",
 			"--agents", "2",
 			"--k3s-node-label", "arkime-capture=true@agent:0"},
 		Env: testEnv,
@@ -51,21 +54,17 @@ func TestZarfPackage(t *testing.T) {
 	// to leave cluster up for examination after this run, comment this out:
 	defer shell.RunCommand(t, clusterTeardownCmd)
 
+	// create the cluster
 	shell.RunCommand(t, clusterSetupCmd)
 
-	// Identify port being used to forward to internal HTTPS
-	// equivalent to: docker inspect k3d-test-arkime-serverlb --format '{{(index .NetworkSettings.Ports "443/tcp" 0).HostPort}}'
-	k3dInspect := docker.Inspect(t, "k3d-test-arkime-serverlb")
+	// set network ID to inspect
+	contextName := "k3d-" + clusterName
+	networkID := contextName
 
-	httpPort := k3dInspect.GetExposedHostPort(80)
-	httpPortStr := strconv.Itoa(int(httpPort))
+	// Get IP range we can use for metallb load balancer
+	ipstart, ipend := DetermineIPRange(t, networkID)
 
-	httpsPort := k3dInspect.GetExposedHostPort(443)
-	httpsPortStr := strconv.Itoa(int(httpsPort))
-
-	t.Log("Using HTTP Port  " + httpPortStr)
-	t.Log("Using HTTPS Port " + httpsPortStr)
-
+	// Start up zarf
 	zarfInitCmd := shell.Command{
 		Command: "zarf",
 		Args:    []string{"init", "--components", "git-server", "--confirm"},
@@ -76,15 +75,20 @@ func TestZarfPackage(t *testing.T) {
 
 	zarfDeployDCOCmd := shell.Command{
 		Command: "zarf",
-		Args:    []string{"package", "deploy", "../zarf-package-dco-foundation-minimal-amd64.tar.zst", "--confirm"},
-		Env:     testEnv,
+		Args: []string{"package", "deploy", "../zarf-package-dco-foundation-amd64.tar.zst",
+			"--confirm",
+			"--components", "flux,big-bang-core,setup,kubevirt,cdi,metallb,metallb-config,dataplane-ek",
+			"--set", "METALLB_IP_ADDRESS_POOL=" + ipstart.String() + "-" + ipend.String(),
+			// "--set", "METALLB_INTERFACE", ""
+		},
+		Env: testEnv,
 	}
 
 	shell.RunCommand(t, zarfDeployDCOCmd)
 
-	// Wait for DCO elastic (Big Bang minimal deployment) to come up before deploying arkime
+	// Wait for DCO elastic (Big Bang deployment) to come up before deploying arkime
 	// Note that k3d calls the cluster test-arkime, but actual context is called k3d-test-arkime
-	opts := k8s.NewKubectlOptions("k3d-test-arkime", kubeconfigPath, "dataplane-ek")
+	opts := k8s.NewKubectlOptions(contextName, kubeconfigPath, "dataplane-ek")
 	k8s.WaitUntilServiceAvailable(t, opts, "dataplane-ek-es-http", 40, 30*time.Second)
 
 	zarfDeployArkimeCmd := shell.Command{
@@ -96,8 +100,15 @@ func TestZarfPackage(t *testing.T) {
 	shell.RunCommand(t, zarfDeployArkimeCmd)
 
 	// wait for arkime service to come up before attempting to hit it
-	opts = k8s.NewKubectlOptions("k3d-test-arkime", kubeconfigPath, "arkime")
+	opts = k8s.NewKubectlOptions(contextName, kubeconfigPath, "arkime")
 	k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 40, 30*time.Second)
+
+	// Determine IP used by the dataplane ingressgateway
+	dataplane_igw := k8s.GetService(t, k8s.NewKubectlOptions(contextName, kubeconfigPath, "istio-system"), "dataplane-ingressgateway")
+	loadbalancer_ip := dataplane_igw.Status.LoadBalancer.Ingress[0].IP
+
+	// Once service is up, give another few seconds for the upstream to be healthy
+	time.Sleep(30 * time.Second)
 
 	//-------------------------------------------------------------------------
 	// Sub-tests
@@ -106,12 +117,9 @@ func TestZarfPackage(t *testing.T) {
 	// --fail-with-body used to fail on a 400 error which can happen when headers are incorrect.
 	curlCmd := shell.Command{
 		Command: "curl",
-		Args: []string{"--resolve", "arkime-viewer.vp.bigbang.dev:" + httpsPortStr + ":127.0.0.1",
+		Args: []string{"--resolve", "arkime-viewer.vp.bigbang.dev:443:" + loadbalancer_ip,
 			"--fail-with-body",
-			"-u", "localadmin:password",
-			"-H", "uid: localadmin",
-			"-H", "roles: arkime-user",
-			"https://arkime-viewer.vp.bigbang.dev:" + httpsPortStr},
+			"https://arkime-viewer.vp.bigbang.dev"},
 		Env: testEnv,
 	}
 
@@ -136,6 +144,7 @@ func TestZarfPackage(t *testing.T) {
 
 	t.Run("Arkime runs succesfully post initial setup", func(t *testing.T) {
 		k8s.WaitUntilServiceAvailable(t, opts, "arkime-viewer", 40, 30*time.Second)
+		time.Sleep(30 * time.Second)
 		shell.RunCommand(t, curlCmd)
 	})
 
@@ -151,4 +160,41 @@ func TestZarfPackage(t *testing.T) {
 			t.Log("Pod log: " + k8s.GetPodLogs(t, opts, &pod, ""))
 		}
 	})
+}
+
+// -------------------------------------------------------------------------
+// DetermineIPRange returns the first and last IP in the subnet
+// This is used to set the IP range for metallb
+// -------------------------------------------------------------------------
+func DetermineIPRange(t *testing.T, networkID string) (net.IP, net.IP) {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		t.Error("ERROR: Unable to create docker client, exiting." + err.Error())
+	}
+
+	network, err := cli.NetworkInspect(context.Background(), networkID, types.NetworkInspectOptions{})
+	if err != nil {
+		t.Error("ERROR: Unable to inspect network, exiting." + err.Error())
+	}
+
+	subnet := network.IPAM.Config[0].Subnet
+
+	ipaddr, ipnet, err := net.ParseCIDR(subnet)
+	if err != nil {
+		t.Error("ERROR: Unable to parse CIDR, exiting." + err.Error())
+	}
+
+	octets := ipaddr.To4()
+	octets[2]++
+	octets[3] = 0
+
+	ipstart := net.IPv4(octets[0], octets[1], octets[2], octets[3])
+
+	octets[3] = 255
+	ipend := net.IPv4(octets[0], octets[1], octets[2], octets[3])
+
+	if !ipnet.Contains(ipstart) || !ipnet.Contains(ipend) {
+		t.Error("ERROR: unable to gonkulate IPs in the k3d subnet, exiting.")
+	}
+	return ipstart, ipend
 }

@@ -97,7 +97,7 @@ jobs:
       #   with:
       #     skip-creation: true    
 
-      - name: Pull BB minimal package needed for testing
+      - name: Pull BB package needed for testing
         run: |
           aws s3 cp --no-progress "${{ env.BB_MIN_S3_PATH }}/${{ inputs.BB_MIN_PACKAGE }}" "${{ inputs.BB_MIN_PACKAGE }}"
 

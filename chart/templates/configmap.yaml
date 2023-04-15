@@ -119,7 +119,7 @@ data:
     # Might need something like this in the httpd.conf
     # RewriteRule .* - [E=ENV_RU:%{REMOTE_USER}]
     # RequestHeader set ARKIME_USER %{ENV_RU}e
-    userNameHeader=uid
+    userNameHeader=anonymous
 
     #
     # Headers to use to determine if user from `userNameHeader` is
@@ -144,9 +144,17 @@ data:
     # reported to be in the group, access is denied regardless of the status
     # in the arkime database.
     #
-    requiredAuthHeader=roles
-    requiredAuthHeaderVal=arkime-user
-    userAutoCreateTmpl={"userId": "${this.uid}", "userName": "${this.uid}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": true, "removeEnabled": true, "packetSearch": true }
+    # requiredAuthHeader=roles
+    # requiredAuthHeaderVal=arkime-user
+    
+    # For OIDC
+    # authDiscoverURL=[DISCOVER or ISSUER or WELLKNOWN URL]
+    # authClientId=[CLIENTID]
+    # authClientSecret=[CLIENTSECRET]
+    # authUserIdField=preferred_username
+    # authRedirectURIs=http://ARKIMEHOST:PORT/auth/login/callback
+    # Optional to auto create users
+    # userAutoCreateTmpl={"userId": "${this.preferred_username}", "userName": "${this.name}", "enabled": true, "webEnabled": true, "headerAuthEnabled": true, "emailSearch": true, "createEnabled": false, "removeEnabled": false, "packetSearch": true }
 
     # Should we parse extra smtp traffic info
     parseSMTP=true

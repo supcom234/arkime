@@ -17,7 +17,7 @@ env:
   IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
   IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
-  BB_MIN_PACKAGE: zarf-package-dco-foundation-minimal-amd64.tar.zst
+  BB_MIN_PACKAGE: zarf-package-dco-foundation-amd64.tar.zst
 
 jobs:
   # Necessary workaround to get env vars passed to the real jobs

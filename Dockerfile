@@ -3,7 +3,7 @@ ARG UBUNTU_VERSION=20.04
 FROM ubuntu:$UBUNTU_VERSION
 
 ARG UBUNTU_VERSION  # FROM resets the vars so have to include this here
-ARG ARKIME_VERSION=4.1.0
+ARG ARKIME_VERSION=4.2.0
 ARG ARKIME_PACKAGE=arkime_${ARKIME_VERSION}-1_amd64.deb
 ARG ARKIME_URL=https://s3.amazonaws.com/files.molo.ch/builds/ubuntu-${UBUNTU_VERSION}/${ARKIME_PACKAGE}
 
