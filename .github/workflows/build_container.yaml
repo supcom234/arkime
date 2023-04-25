@@ -18,7 +18,7 @@ env:
   IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
   ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
   BB_MIN_PACKAGE: zarf-package-dco-foundation-amd64.tar.zst
-  IMAGE_S3_PATH  REF_NAME: "${{ github.head_ref || github.ref_name }}"
+  IMAGE_S3_PATH: "s3://${{ secrets.AWS_ASSETS_BUCKET }}/arkime/"
 
 jobs:
   image-create:
@@ -53,15 +53,15 @@ jobs:
 
       - name: Build Image
         run: |
-          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker build -t "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG" .
+          docker build -t "${{ env.IMAGE_NAME }}":"$IMAGE_TAG" .
 
       - name: Publish to ECR
         run: |
-          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker push "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG"
+          docker push "${{ env.IMAGE_NAME }}":"$IMAGE_TAG"
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
