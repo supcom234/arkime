@@ -1,15 +1,23 @@
 name: Build Arkime Image
 run-name: ${{github.actor}} is building the Arkime Container Image
 on:
-  workflow_call:
-    inputs:
-      IMAGE_NAME: 
-          required: true
-          type: string
-      IMAGE_TAG: 
-          required: true
-          type: string
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+    tags: ["v**"]
+
+permissions:
+  id-token: write
+  contents: read
+
 env:
+  REF_NAME: "${{ github.head_ref || github.ref_name }}"
+  REF_TYPE: "${{ github.ref_type }}"
+  IMAGE_NAME: 765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4
+  IMAGE_TAG: "${{ github.head_ref || github.ref_name }}"
+  ZARF_PACKAGE: zarf-package-arkime-amd64.tar.zst
+  BB_MIN_PACKAGE: zarf-package-dco-foundation-amd64.tar.zst
   IMAGE_S3_PATH: "s3://${{ secrets.AWS_ASSETS_BUCKET }}/arkime/"
 
 jobs:
@@ -45,15 +53,15 @@ jobs:
 
       - name: Build Image
         run: |
-          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker build -t "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG" .
+          docker build -t "${{ env.IMAGE_NAME }}":"$IMAGE_TAG" .
 
       - name: Publish to ECR
         run: |
-          IMAGE_TAG="${{ inputs.IMAGE_TAG }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG }}"
           IMAGE_TAG=${IMAGE_TAG//\//\_}
-          docker push "${{ inputs.IMAGE_NAME }}":"$IMAGE_TAG"
+          docker push "${{ env.IMAGE_NAME }}":"$IMAGE_TAG"
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v1
