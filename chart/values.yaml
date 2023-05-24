@@ -2,7 +2,7 @@
 
 # Container image
 image: "765814079306.dkr.ecr.us-east-1.amazonaws.com/arkime4"
-version: "###ZARF_CONST_IMAGE_TAG###"
+version: "v4.2.0-2"
 
 # URL
 viewer_url: arkime.kit1.voltron.lan
@@ -37,12 +37,13 @@ elastic_port: 9200
 elastic_cert_arkime: arkime-ek-es-http-certs-public
 
 # Interface to capture traffic on
-capture_interface: notset
+capture_interface: ens160
 
 maxESConns: "30"
 maxESRequests: "500"
 packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
+suricata_log_path: /opt/suricata/logs
 
 networkPolicies:
   enabled: false
