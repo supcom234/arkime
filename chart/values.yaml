@@ -45,5 +45,10 @@ packetsPerPoll: "500000"
 maxPacketsInQueue: "400000"
 suricata_log_path: /opt/suricata/logs
 
+# If set to true Arkime will read PCAPs from a PCAP folder
+read_from_disk: yes
+pcap_folder: /opt/suricata/pcaps/
+
+
 networkPolicies:
   enabled: false

@@ -43,7 +43,11 @@ spec:
             memory: "8192Mi"
             cpu: "500m"
         command: ["/bin/sh"]
+        {{- if eq .Values.read_from_disk "yes" }}
+        args: ["-c", "update-ca-certificates && /opt/arkime/bin/capture -c /opt/arkime/etc/config.ini --pcapdir {{ .Values.pcap_folder }} --monitor"]
+        {{- else }}
         args: ["-c", "update-ca-certificates && /opt/arkime/bin/capture -c /opt/arkime/etc/config.ini"]
+        {{- end }}
         volumeMounts:
         - name: configini
           subPath: config.ini
@@ -56,6 +60,11 @@ spec:
         - name: suricata-logs
           mountPath: /opt/suricata/logs/
           readOnly: true
+        {{- if eq .Values.read_from_disk "yes" }}
+        - name: suricata-pcaps
+          mountPath: {{ .Values.pcap_folder }}
+          readOnly: true
+        {{- end }}
         securityContext:
           capabilities:
             add:
@@ -76,4 +85,10 @@ spec:
         hostPath:
           path: {{ .Values.suricata_log_path }}
           type: DirectoryOrCreate
+      {{- if eq .Values.read_from_disk "yes" }}
+      - name: suricata-pcaps
+        hostPath:
+          path: {{ .Values.pcap_folder }}
+          type: DirectoryOrCreate
+      {{- end }}
       
